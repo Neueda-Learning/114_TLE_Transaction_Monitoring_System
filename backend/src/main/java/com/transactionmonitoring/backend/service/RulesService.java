@@ -31,7 +31,7 @@ public class RulesService {
     //Amount Threshold Rule
     private void checkAmountThreshold(Transaction transaction,List<String> violations){
         // List<String> violations = new ArrayList<>();
-        Rules amountRule = rulesRepository.findByRuleTypeAndIsActiveTrue("AMOUNT_THRESOLD");
+        Rules amountRule = rulesRepository.findByRuleTypeAndIsActiveTrue("AMOUNT_THRESHOLD");
         if(amountRule == null){
             return;
         }

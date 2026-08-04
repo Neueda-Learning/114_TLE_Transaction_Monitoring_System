@@ -1,74 +1,93 @@
 package com.transactionmonitoring.backend.service;
-
+import com.transactionmonitoring.backend.entity.Transaction;
+import com.transactionmonitoring.backend.entity.Rules;
+import com.transactionmonitoring.backend.repository.RulesRepository;
 import com.transactionmonitoring.backend.entity.Alert;
 import com.transactionmonitoring.backend.repository.AlertRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+
 
 @Service
 public class AlertService {
 
     private final AlertRepository alertRepository;
+    private final RulesRepository ruleRepository;
 
-
-    public AlertService(AlertRepository alertRepository) {
+    public AlertService(AlertRepository alertRepository,
+                        RulesRepository ruleRepository) {
         this.alertRepository = alertRepository;
+        this.ruleRepository = ruleRepository;
     }
 
+    public void createAlerts(Transaction transaction,
+                             List<String> violations) {
 
-    // Save a new alert
-    public Alert saveAlert(Alert alert) {
+        for (String violation : violations) {
 
-        // Default status when alert is created
-        if(alert.getAlertStatus() == null){
-        alert.setAlertStatus("OPEN");
-}
+            Rules rule =
+                    ruleRepository.findByRuleTypeAndIsActiveTrue(violation);
 
-        // Set creation time
-        if (alert.getCreatedAt() == null) {
-            alert.setCreatedAt(LocalDateTime.now());
+            if (rule == null) {
+                continue;
+            }
+
+            Alert alert = new Alert();
+
+            alert.setTransactionId(transaction.getTransactionId());
+            alert.setRuleId(rule.getRuleId());
+            alert.setAlertType(violation);
+            alert.setAlertStatus("OPEN");
+
+            alert.setSeverity(getSeverity(violation));
+
+            alert.setAlertMessage(getMessage(violation, transaction));
+
+            alertRepository.save(alert);
         }
-
-        return alertRepository.save(alert);
     }
 
+    private String getSeverity(String violation) {
 
-    // Get all alerts
-    public List<Alert> getAllAlerts() {
+        switch (violation) {
 
-        return alertRepository.findAll();
+            case "AMOUNT_THRESHOLD":
+                return "HIGH";
+
+            case "VELOCITY":
+                return "MEDIUM";
+
+            case "NEW_PAYEE":
+                return "LOW";
+
+            case "DAILY_LIMIT":
+                return "HIGH";
+
+            default:
+                return "LOW";
+        }
     }
 
+    private String getMessage(String violation,
+                              Transaction transaction) {
 
-    // Get alert by ID
-    public Alert getAlertById(Long alertId) {
+        switch (violation) {
 
-        return alertRepository.findById(alertId)
-                .orElseThrow(() ->
-                        new RuntimeException("Alert not found with id: " + alertId)
-                );
-    }
+            case "AMOUNT_THRESHOLD":
+                return "Transaction amount exceeded threshold.";
 
+            case "VELOCITY":
+                return "High number of transactions detected.";
 
-    // Update alert status
-    public Alert updateAlertStatus(Long alertId, String status) {
+            case "NEW_PAYEE":
+                return "Transaction made to a new payee.";
 
-        Alert alert = alertRepository.findById(alertId)
-                .orElseThrow(() ->
-                        new RuntimeException("Alert not found with id: " + alertId)
-                );
+            case "DAILY_LIMIT":
+                return "Daily transaction limit exceeded.";
 
-        alert.setAlertStatus(status);
-
-        return alertRepository.save(alert);
-    }
-
-
-    // Delete alert (optional)
-    public void deleteAlert(Long alertId) {
-
-        alertRepository.deleteById(alertId);
+            default:
+                return "Rule violated.";
+        }
     }
 }

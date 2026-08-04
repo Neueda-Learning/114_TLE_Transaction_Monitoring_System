@@ -6,16 +6,20 @@ import java.util.List;
 
 @Service
 public class TransactionService {
+    private final AlertService alertService;
     private final TransactionRepository transactionRepository;
     private final RulesService rulesService;
-    public TransactionService(TransactionRepository transactionRepository, RulesService rulesService){
+    public TransactionService(TransactionRepository transactionRepository, RulesService rulesService, AlertService alertService){
         this.transactionRepository = transactionRepository;
         this.rulesService = rulesService;
+        this.alertService = alertService;
     }
 
     public Transaction saveTransaction(Transaction transaction){
         Transaction savedTransaction = transactionRepository.save(transaction);
-        checkTransactionRules(savedTransaction);
+        List<String> violations = rulesService.checkRules(savedTransaction);
+        alertService.createAlerts(savedTransaction, violations);
+
         return savedTransaction;
     }
     public void checkTransactionRules(Transaction transaction){

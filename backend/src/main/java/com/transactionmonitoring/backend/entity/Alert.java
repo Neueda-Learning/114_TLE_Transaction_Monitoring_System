@@ -47,6 +47,14 @@ public class Alert {
     public Long getTransactionId() {
         return transactionId;
     }
+    
+    public String getSeverity() {
+        return severity;
+    }
+
+    public void setSeverity(String severity) {
+        this.severity = severity;
+    }
 
     public void setTransactionId(Long transactionId) {
         this.transactionId = transactionId;
