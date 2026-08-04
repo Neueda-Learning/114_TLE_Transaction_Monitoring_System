@@ -16,6 +16,17 @@ public class Alert {
     @Column(name = "rule_id")
     private Long ruleId;
 
+    @Column(name = "alert_type")
+    private String alertType;
+
+
+    @Column(name = "severity")
+    private String severity;
+
+
+    @Column(name = "alert_status")
+    private String alertStatus;
+
     @Column(name = "alert_message", length = 255)
     private String alertMessage;
 
@@ -53,8 +64,24 @@ public class Alert {
         return alertMessage;
     }
 
+    public String getAlertType() {
+        return alertType;
+    }
+
+    public void setAlertType(String alertType) {
+        this.alertType = alertType;
+    }
+
     public void setAlertMessage(String alertMessage) {
         this.alertMessage = alertMessage;
+    }
+
+    public String getAlertStatus() {
+        return alertStatus;
+    }
+
+    public void setAlertStatus(String alertStatus) {
+        this.alertStatus = alertStatus;
     }
 
     public LocalDateTime getCreatedAt() {
