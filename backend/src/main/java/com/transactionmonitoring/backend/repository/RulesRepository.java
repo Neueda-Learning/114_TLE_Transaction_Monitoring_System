@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RulesRepository extends JpaRepository<Rules,Long> {
-    
+    Rules findByRuleTypeAndIsActiveTrue(String ruleType);
 }
