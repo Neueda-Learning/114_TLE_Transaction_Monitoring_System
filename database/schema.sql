@@ -66,3 +66,14 @@ CREATE TABLE logs (
 insert into rules(rule_name,rule_type,field_name,operator,threshold_value,is_active) Values ('Amount Threshold','AMOUNT_THRESHOLD','amount','>','20000',true);
 INSERT INTO rules(rule_name,rule_type,threshold_value,time_window_minutes,is_active) Values ('Velocity Rule', 'VELOCITY','5',10,true);
 Insert into rules(rule_name,rule_type,threshold_value,is_active) values('Daily Limit Rule','DAILY_LIMIT','50000',true);
+
+-- 5. Users Table (internal login accounts; ADMIN or ANALYST role)
+CREATE TABLE users (
+    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(50) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
+    email VARCHAR(150),
+    role VARCHAR(50)
+);
