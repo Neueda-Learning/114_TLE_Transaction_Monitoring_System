@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --slate-950: #071423;
+  --slate-900: #0d1b2b;
+  --slate-800: #15263a;
+  --slate-700: #24384f;
+  --slate-500: #506a86;
+  --slate-300: #c8d5e4;
+  --slate-100: #e9f0f7;
+  --slate-50: #f6f9fc;
+
+  --brand-700: #005b8f;
+  --brand-500: #007ab8;
+  --brand-200: #cae9f8;
+
+  --success-500: #198754;
+  --warning-500: #d18a1c;
+  --danger-500: #c13f49;
+
+  --text-primary: #0e2236;
+  --text-secondary: #5c7288;
+  --text-muted: #8095aa;
+
+  --bg-main: #f4f8fc;
+  --bg-panel: #ffffff;
+  --bg-panel-2: #f8fbff;
+
+  --border-color: #d6e3ef;
+  --border-strong: #b7ccde;
+
+  --shadow-soft: 0 8px 20px rgba(10, 34, 60, 0.07);
+  --shadow-strong: 0 16px 35px rgba(9, 26, 46, 0.14);
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+
+  --font-sans: 'Manrope', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', Consolas, monospace;
+}
