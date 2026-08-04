@@ -61,3 +61,15 @@ CREATE TABLE logs (
     FOREIGN KEY(alert_id)
     REFERENCES alerts(alert_id)
 );
+
+
+-- 5. Users Table (internal login accounts; ADMIN or ANALYST role)
+CREATE TABLE users (
+    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(50) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
+    email VARCHAR(150),
+    role VARCHAR(50)
+);
