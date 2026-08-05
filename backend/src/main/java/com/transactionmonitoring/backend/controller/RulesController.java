@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/rules")
+@RequestMapping("/api/rules")
 public class RulesController {
 
     private final RulesService rulesService;

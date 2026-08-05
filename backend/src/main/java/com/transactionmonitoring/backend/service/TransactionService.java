@@ -25,6 +25,11 @@ public class TransactionService {
 
         return savedTransaction;
     }
+
+    public List<Transaction> getAllTransactions() {
+        return transactionRepository.findAll();
+    }
+
     public void checkTransactionRules(Transaction transaction){
         List<String> violations = rulesService.checkRules(transaction);
         if(!violations.isEmpty()){

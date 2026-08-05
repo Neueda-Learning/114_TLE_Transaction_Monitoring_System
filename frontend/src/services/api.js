@@ -1,31 +1,76 @@
 import axios from 'axios'
-import { mockTransactions } from '../data/mockTransactions'
-import { mockAlerts } from '../data/mockAlerts'
-import { mockRules } from '../data/mockRules'
 import { normalizeAlert, normalizeRule, normalizeTransaction } from './adapters'
+
+const SESSION_KEY = 'tm_auth_session'
 
 const apiClient = axios.create({
   baseURL: '/api',
   timeout: 8000,
 })
 
-const withLatency = (data) =>
-  new Promise((resolve) => {
-    setTimeout(() => resolve(structuredClone(data)), 450)
-  })
+apiClient.interceptors.request.use((config) => {
+  const stored = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)
+  if (!stored) {
+    return config
+  }
+
+  try {
+    const session = JSON.parse(stored)
+    if (session?.token) {
+      config.headers = config.headers || {}
+      config.headers.Authorization = `Bearer ${session.token}`
+    }
+  } catch {
+    // Ignore invalid storage values and continue without auth header.
+  }
+
+  return config
+})
 
 const toTransactionList = (items = []) => items.map((item) => normalizeTransaction(item))
 const toRuleList = (items = []) => items.map((item) => normalizeRule(item))
 const toAlertList = (items = [], transactions = [], rules = []) =>
   items.map((item) => normalizeAlert(item, transactions, rules))
 
+const mapUiRuleTypeToApiRuleType = (type) => {
+  switch (type) {
+    case 'AMOUNT':
+      return 'AMOUNT_THRESHOLD'
+    case 'LIMIT':
+      return 'DAILY_LIMIT'
+    case 'BEHAVIORAL':
+      return 'NEW_PAYEE'
+    default:
+      return type
+  }
+}
+
+const mapRulePayloadToApi = (payload = {}) => ({
+  ruleName: payload.name,
+  ruleType: mapUiRuleTypeToApiRuleType(payload.type),
+  thresholdValue: payload.threshold,
+  isActive: payload.status !== 'DISABLED',
+})
+
+const getStatusAction = (status) => {
+  switch (status) {
+    case 'ACKNOWLEDGED':
+      return 'ACKNOWLEDGE'
+    case 'INVESTIGATING':
+      return 'START_INVESTIGATION'
+    case 'CLOSED':
+      return 'CLOSE'
+    case 'DISMISSED':
+      return 'DISMISS'
+    default:
+      return 'UPDATE_STATUS'
+  }
+}
+
 export const getTransactions = async () => {
   try {
-    // Future integration:
-    // const response = await apiClient.get('/transactions')
-    // return toTransactionList(response.data)
-    const data = await withLatency(mockTransactions)
-    return toTransactionList(data)
+    const response = await apiClient.get('/transactions')
+    return toTransactionList(response.data)
   } catch (error) {
     throw new Error('Unable to load transactions.', { cause: error })
   }
@@ -38,10 +83,8 @@ export const getAlerts = async (dependencies = {}) => {
       : []
     const dependencyRules = Array.isArray(dependencies.rules) ? dependencies.rules : []
 
-    // Future integration:
-    // const response = await apiClient.get('/alerts')
-    // return toAlertList(response.data, dependencyTransactions, dependencyRules)
-    const alerts = await withLatency(mockAlerts)
+    const response = await apiClient.get('/alerts')
+    const alerts = response.data
 
     const transactions = dependencyTransactions.length
       ? dependencyTransactions
@@ -57,14 +100,10 @@ export const getAlerts = async (dependencies = {}) => {
 
 export const getAlertById = async (alertId) => {
   try {
-    // Future integration:
-    // const response = await apiClient.get(`/alerts/${alertId}`)
-    // const transactions = await getTransactions()
-    // const rules = await getRules()
-    // return normalizeAlert(response.data, transactions, rules)
-    const alerts = await getAlerts()
-    const alert = alerts.find((item) => item.id === alertId)
-    return alert || null
+    const response = await apiClient.get(`/alerts/${alertId}`)
+    const transactions = await getTransactions()
+    const rules = await getRules()
+    return normalizeAlert(response.data, transactions, rules)
   } catch (error) {
     throw new Error('Unable to load alert details.', { cause: error })
   }
@@ -72,11 +111,8 @@ export const getAlertById = async (alertId) => {
 
 export const getRules = async () => {
   try {
-    // Future integration:
-    // const response = await apiClient.get('/rules')
-    // return toRuleList(response.data)
-    const data = await withLatency(mockRules)
-    return toRuleList(data)
+    const response = await apiClient.get('/rules')
+    return toRuleList(response.data)
   } catch (error) {
     throw new Error('Unable to load rules.', { cause: error })
   }
@@ -84,9 +120,12 @@ export const getRules = async () => {
 
 export const updateAlertStatus = async (alertId, status) => {
   try {
-    // Future integration:
-    // await apiClient.patch(`/alerts/${alertId}`, { status })
-    return await withLatency({ alertId, status })
+    await apiClient.patch(`/alerts/${alertId}/status`, {
+      status,
+      action: getStatusAction(status),
+      description: `Status changed to ${status}`,
+    })
+    return { alertId, status }
   } catch (error) {
     throw new Error('Unable to update alert status.', { cause: error })
   }
@@ -94,9 +133,8 @@ export const updateAlertStatus = async (alertId, status) => {
 
 export const updateRule = async (ruleId, payload) => {
   try {
-    // Future integration:
-    // await apiClient.put(`/rules/${ruleId}`, payload)
-    return await withLatency({ ruleId, ...payload })
+    await apiClient.put(`/rules/${ruleId}`, mapRulePayloadToApi(payload))
+    return { ruleId, ...payload }
   } catch (error) {
     throw new Error('Unable to update rule.', { cause: error })
   }
@@ -104,10 +142,8 @@ export const updateRule = async (ruleId, payload) => {
 
 export const createRule = async (payload) => {
   try {
-    // Future integration:
-    // const response = await apiClient.post('/rules', payload)
-    // return response.data
-    return await withLatency(payload)
+    const response = await apiClient.post('/rules', mapRulePayloadToApi(payload))
+    return normalizeRule(response.data)
   } catch (error) {
     throw new Error('Unable to create rule.', { cause: error })
   }
