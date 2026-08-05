@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   createRule,
   getAlerts,
@@ -8,13 +8,15 @@ import {
   updateRule,
 } from '../services/api'
 import { AppDataContext } from './appDataContextObject'
+import { useAuth } from './useAuth'
 
-const appendTimelineEvent = (timeline = [], action) => {
+const appendTimelineEvent = (action, timeline = []) => {
   const time = new Date().toISOString()
   return [...timeline, { time, action }]
 }
 
 export function AppDataProvider({ children }) {
+  const { isAuthenticated } = useAuth()
   const [transactions, setTransactions] = useState([])
   const [alerts, setAlerts] = useState([])
   const [rules, setRules] = useState([])
@@ -22,6 +24,10 @@ export function AppDataProvider({ children }) {
   const [error, setError] = useState('')
 
   const loadData = useCallback(async () => {
+    if (!isAuthenticated) {
+      return
+    }
+
     setIsLoading(true)
     setError('')
 
@@ -44,15 +50,24 @@ export function AppDataProvider({ children }) {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [isAuthenticated])
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      setTransactions([])
+      setAlerts([])
+      setRules([])
+      setError('')
+      setIsLoading(false)
+      return
+    }
+
     const timer = setTimeout(() => {
       loadData()
     }, 0)
 
     return () => clearTimeout(timer)
-  }, [loadData])
+  }, [isAuthenticated, loadData])
 
   const changeAlertStatus = async (alertId, status) => {
     await updateAlertStatus(alertId, status)
@@ -67,8 +82,8 @@ export function AppDataProvider({ children }) {
           ...alert,
           status,
           timeline: appendTimelineEvent(
-            alert.timeline,
             `Alert status changed to ${status}.`,
+            alert.timeline,
           ),
         }
       }),
@@ -93,23 +108,33 @@ export function AppDataProvider({ children }) {
       return
     }
 
-    const newRule = {
-      id: `RULE-${String(Date.now()).slice(-4)}`,
-      ...payload,
-      lastUpdated: new Date().toISOString(),
-    }
-
-    await createRule(newRule)
-    setRules((currentRules) => [newRule, ...currentRules])
+    const createdRule = await createRule(payload)
+    setRules((currentRules) => [createdRule, ...currentRules])
   }
 
-  const toggleRuleStatus = (ruleId) => {
+  const toggleRuleStatus = async (ruleId) => {
+    const currentRule = rules.find((rule) => rule.id === ruleId)
+    if (!currentRule) {
+      return
+    }
+
+    const nextStatus = currentRule.status === 'ENABLED' ? 'DISABLED' : 'ENABLED'
+
+    await updateRule(ruleId, {
+      name: currentRule.name,
+      type: currentRule.type,
+      threshold: currentRule.threshold,
+      severity: currentRule.severity,
+      status: nextStatus,
+      description: currentRule.description,
+    })
+
     setRules((currentRules) =>
       currentRules.map((rule) =>
         rule.id === ruleId
           ? {
               ...rule,
-              status: rule.status === 'ENABLED' ? 'DISABLED' : 'ENABLED',
+              status: nextStatus,
               lastUpdated: new Date().toISOString(),
             }
           : rule,
@@ -117,17 +142,30 @@ export function AppDataProvider({ children }) {
     )
   }
 
-  const value = {
-    transactions,
-    alerts,
-    rules,
-    isLoading,
-    error,
-    loadData,
-    changeAlertStatus,
-    upsertRule,
-    toggleRuleStatus,
-  }
+  const value = useMemo(
+    () => ({
+      transactions,
+      alerts,
+      rules,
+      isLoading,
+      error,
+      loadData,
+      changeAlertStatus,
+      upsertRule,
+      toggleRuleStatus,
+    }),
+    [
+      transactions,
+      alerts,
+      rules,
+      isLoading,
+      error,
+      loadData,
+      changeAlertStatus,
+      upsertRule,
+      toggleRuleStatus,
+    ],
+  )
 
   return (
     <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>

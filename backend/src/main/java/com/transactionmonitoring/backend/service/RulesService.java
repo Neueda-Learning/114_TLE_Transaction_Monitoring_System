@@ -37,13 +37,27 @@ public class RulesService {
             return null;
         }
 
-        existing.setRuleName(updated.getRuleName());
-        existing.setRuleType(updated.getRuleType());
-        existing.setFieldName(updated.getFieldName());
-        existing.setOperator(updated.getOperator());
-        existing.setThresholdValue(updated.getThresholdValue());
-        existing.setTimeWindowMinutes(updated.getTimeWindowMinutes());
-        existing.setIsActive(updated.getIsActive());
+        if (updated.getRuleName() != null) {
+            existing.setRuleName(updated.getRuleName());
+        }
+        if (updated.getRuleType() != null) {
+            existing.setRuleType(updated.getRuleType());
+        }
+        if (updated.getFieldName() != null) {
+            existing.setFieldName(updated.getFieldName());
+        }
+        if (updated.getOperator() != null) {
+            existing.setOperator(updated.getOperator());
+        }
+        if (updated.getThresholdValue() != null) {
+            existing.setThresholdValue(updated.getThresholdValue());
+        }
+        if (updated.getTimeWindowMinutes() != null) {
+            existing.setTimeWindowMinutes(updated.getTimeWindowMinutes());
+        }
+        if (updated.getIsActive() != null) {
+            existing.setIsActive(updated.getIsActive());
+        }
 
         return rulesRepository.save(existing);
     }
@@ -82,6 +96,11 @@ public class RulesService {
         if(velocityRule == null){
             return;
         }
+
+        if (velocityRule.getThresholdValue() == null || velocityRule.getTimeWindowMinutes() == null) {
+            return;
+        }
+
         int threshold = Integer.parseInt(velocityRule.getThresholdValue());
         int minutes = velocityRule.getTimeWindowMinutes();
         LocalDateTime timelimit = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(minutes);
