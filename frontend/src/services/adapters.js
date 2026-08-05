@@ -26,6 +26,19 @@ const alertTimelineDefaults = (createdTime, status) => [
   },
 ]
 
+const mapApiRuleTypeToUiType = (ruleType) => {
+  switch (ruleType) {
+    case 'AMOUNT_THRESHOLD':
+      return 'AMOUNT'
+    case 'DAILY_LIMIT':
+      return 'LIMIT'
+    case 'NEW_PAYEE':
+      return 'BEHAVIORAL'
+    default:
+      return ruleType || 'UNKNOWN'
+  }
+}
+
 export const normalizeTransaction = (transaction = {}) => {
   const transactionId =
     transaction.id ||
@@ -100,11 +113,12 @@ export const normalizeAlert = (alert = {}, transactions = [], rules = []) => {
 export const normalizeRule = (rule = {}) => {
   const ruleId = rule.id || rule.ruleId || rule.rule_id || `RULE-${Date.now()}`
   const isActive = typeof rule.isActive === 'boolean' ? rule.isActive : undefined
+  const ruleType = rule.type || rule.ruleType
 
   return {
     id: String(ruleId),
     name: rule.name || rule.ruleName || 'Unnamed Rule',
-    type: rule.type || rule.ruleType || 'UNKNOWN',
+    type: mapApiRuleTypeToUiType(ruleType),
     threshold: rule.threshold || rule.thresholdValue || 'N/A',
     severity: rule.severity || 'MEDIUM',
     status: rule.status || (isActive === false ? 'DISABLED' : 'ENABLED'),
