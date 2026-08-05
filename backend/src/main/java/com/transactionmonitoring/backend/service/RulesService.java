@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import com.transactionmonitoring.backend.repository.TransactionRepository;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 @Service
 public class RulesService {
     private final RulesRepository rulesRepository;
@@ -66,7 +67,6 @@ public class RulesService {
     }
     //Amount Threshold Rule
     private void checkAmountThreshold(Transaction transaction,List<String> violations){
-        // List<String> violations = new ArrayList<>();
         Rules amountRule = rulesRepository.findByRuleTypeAndIsActiveTrue("AMOUNT_THRESHOLD");
         if(amountRule == null){
             return;
@@ -75,18 +75,16 @@ public class RulesService {
         if(transaction.getAmount().compareTo(threshold) > 0){
             violations.add("AMOUNT_THRESHOLD");
         }
-        return;
     }
     //checkVelocity Rule
     private void checkVelocity(Transaction transaction,List<String> violations){
-        // List<String> violations = new ArrayList<>();
         Rules velocityRule = rulesRepository.findByRuleTypeAndIsActiveTrue("VELOCITY");
         if(velocityRule == null){
             return;
         }
         int threshold = Integer.parseInt(velocityRule.getThresholdValue());
         int minutes = velocityRule.getTimeWindowMinutes();
-        LocalDateTime timelimit = LocalDateTime.now().minusMinutes(minutes);
+        LocalDateTime timelimit = LocalDateTime.now(ZoneOffset.UTC).minusMinutes(minutes);
 
         List<Transaction> recentTransactions = transactionRepository.findByAccountIdAndTransactionDateAfter(transaction.getAccountId(), timelimit);
         if(recentTransactions.size() > threshold){
@@ -108,7 +106,7 @@ public class RulesService {
         if(dailyRule == null){
             return;
         }
-        List<Transaction> transactions = transactionRepository.findByAccountIdAndTransactionDateAfter(transaction.getAccountId(), LocalDate.now().atStartOfDay());
+        List<Transaction> transactions = transactionRepository.findByAccountIdAndTransactionDateAfter(transaction.getAccountId(), LocalDate.now(ZoneOffset.UTC).atStartOfDay());
         BigDecimal total = BigDecimal.ZERO;
         for(Transaction t:transactions){
             total = total.add(t.getAmount());

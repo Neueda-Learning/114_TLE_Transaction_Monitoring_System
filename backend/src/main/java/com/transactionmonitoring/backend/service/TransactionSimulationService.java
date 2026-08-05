@@ -1,7 +1,6 @@
 package com.transactionmonitoring.backend.service;
 
 import com.transactionmonitoring.backend.entity.Transaction;
-import com.transactionmonitoring.backend.repository.TransactionRepository;
 import com.transactionmonitoring.backend.simulation.RandomTransactionGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,13 +15,13 @@ public class TransactionSimulationService {
 
     private static final Logger log = LoggerFactory.getLogger(TransactionSimulationService.class);
 
-    private final TransactionRepository transactionRepository;
+    private final TransactionService transactionService;
     private final RandomTransactionGenerator randomTransactionGenerator;
 
     public TransactionSimulationService(
-            TransactionRepository transactionRepository,
+            TransactionService transactionService,
             RandomTransactionGenerator randomTransactionGenerator) {
-        this.transactionRepository = transactionRepository;
+        this.transactionService = transactionService;
         this.randomTransactionGenerator = randomTransactionGenerator;
     }
 
@@ -34,7 +33,7 @@ public class TransactionSimulationService {
     @Transactional
     public Transaction generateAndSaveOne() {
         Transaction tx = randomTransactionGenerator.generate();
-        Transaction saved = transactionRepository.save(tx);
+        Transaction saved = transactionService.saveTransaction(tx);
         log.info("Saved transaction id={} accountId={} amount={} {}",
                 saved.getTransactionId(), saved.getAccountId(),
                 saved.getAmount(), saved.getCurrency());
@@ -55,13 +54,13 @@ public class TransactionSimulationService {
             throw new IllegalArgumentException("count must be at least 1, got: " + count);
         }
 
-        List<Transaction> batch = new ArrayList<>(count);
+        List<Transaction> saved = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
-            batch.add(randomTransactionGenerator.generate());
+            Transaction tx = randomTransactionGenerator.generate();
+            saved.add(transactionService.saveTransaction(tx));
         }
 
-        List<Transaction> saved = transactionRepository.saveAll(batch);
-        log.info("Saved batch of {} transactions", saved.size());
+        log.info("Saved batch of {} transactions (rules evaluated per transaction)", saved.size());
         return saved;
     }
 }
