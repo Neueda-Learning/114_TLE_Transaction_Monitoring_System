@@ -1,6 +1,14 @@
 
 use transaction_monitoringdb;
-
+CREATE TABLE users (
+    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    employee_id VARCHAR(50) NOT NULL UNIQUE,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100),
+    email VARCHAR(150),
+    role VARCHAR(50)
+);
 -- 1. Transactions Table
 CREATE TABLE transactions (
     transaction_id BIGINT PRIMARY KEY AUTO_INCREMENT,
