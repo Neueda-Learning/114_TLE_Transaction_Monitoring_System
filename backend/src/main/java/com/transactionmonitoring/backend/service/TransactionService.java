@@ -12,6 +12,7 @@ import com.transactionmonitoring.backend.repository.AlertRepository;
 import com.transactionmonitoring.backend.entity.Logs;
 import com.transactionmonitoring.backend.service.LogService;
 import java.util.stream.Collectors;
+import com.transactionmonitoring.backend.service.FraudService;
 
 @Service
 public class TransactionService {
@@ -20,21 +21,28 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final RulesService rulesService;
     private final AlertRepository alertRepository;
+    private final FraudService fraudService;
     private final LogService logService;
-    public TransactionService(TransactionRepository transactionRepository, RulesService rulesService, AlertService alertService, AlertRepository alertRepository, LogService logService){
+    public TransactionService(TransactionRepository transactionRepository, RulesService rulesService, AlertService alertService, AlertRepository alertRepository, LogService logService,FraudService fraudService) {
         this.transactionRepository = transactionRepository;
         this.rulesService = rulesService;
         this.alertService = alertService;
         this.alertRepository = alertRepository;
         this.logService = logService;
+        this.fraudService = fraudService;
     }
 
     public Transaction saveTransaction(Transaction transaction){
-        transaction.setTransactionStatus("SUCCESS");
+        transaction.setInvestigationStatus("SUCCESS");
         Transaction savedTransaction = transactionRepository.save(transaction);
         List<String> violations = rulesService.checkRules(savedTransaction);
         alertService.createAlerts(savedTransaction, violations);
+        String fraudStatus =
+        fraudService.classifyFraud(violations);
 
+        transaction.setFraudStatus(fraudStatus);
+
+        transactionRepository.save(transaction);
         return savedTransaction;
     }
 
@@ -70,7 +78,7 @@ public class TransactionService {
             throw new IllegalStateException("Rollback allowed only when at least one alert is under investigation.");
         }
 
-        transaction.setTransactionStatus("ROLLED_BACK");
+        transaction.setInvestigationStatus("ROLLED_BACK");
         transactionRepository.save(transaction);
 
         for (Alert alert : investigatingAlerts) {
