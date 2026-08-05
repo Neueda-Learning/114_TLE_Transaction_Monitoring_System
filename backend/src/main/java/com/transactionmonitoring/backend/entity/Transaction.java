@@ -25,7 +25,7 @@ public class Transaction {
     private String transactionType;
 
     @Column(name = "payee_id")
-    private String payeeid;
+    private String payeeId;
 
     @Column(name = "payee_name")
     private String payeeName;
@@ -75,11 +75,8 @@ public class Transaction {
         this.transactionType = transactionType;
     }
 
-    public String getPayeeid(){
-        return payeeid;
-    }
-    public void setPayeeid(String payeeid){
-        this.payeeid = payeeid;
+    public void setPayeeId(String payeeId){
+        this.payeeId = payeeId;
     }
 
     public String getPayeeName(){
@@ -103,7 +100,7 @@ public class Transaction {
         this.status = status;
     }
     public String getPayeeId(){
-        return payeeid;
+        return payeeId;
     }
     
 

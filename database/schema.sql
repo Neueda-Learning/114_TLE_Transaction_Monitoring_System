@@ -66,3 +66,4 @@ CREATE TABLE logs (
 insert into rules(rule_name,rule_type,field_name,operator,threshold_value,is_active) Values ('Amount Threshold','AMOUNT_THRESHOLD','amount','>','20000',true);
 INSERT INTO rules(rule_name,rule_type,threshold_value,time_window_minutes,is_active) Values ('Velocity Rule', 'VELOCITY','5',10,true);
 Insert into rules(rule_name,rule_type,threshold_value,is_active) values('Daily Limit Rule','DAILY_LIMIT','50000',true);
+insert into rules(rule_name,rule_type,threshold_value,is_active) values('New Payee Rule','NEW_PAYEE',NULL,True);

@@ -13,6 +13,6 @@ import org.springframework.data.jpa.repository.Query;
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction,Long>{
     List<Transaction> findByAccountIdAndTransactionDateAfter(String accountId, LocalDateTime transaction_date);
-    long countByAccountIdAndPayeeId(String accountId, String payeeId);
+    long countByAccountIdAndPayeeId(String accountId, String payeeid);
 }
 

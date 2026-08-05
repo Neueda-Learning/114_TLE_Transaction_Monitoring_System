@@ -37,7 +37,7 @@ public class RulesService {
         }
         BigDecimal threshold = new BigDecimal(amountRule.getThresholdValue());
         if(transaction.getAmount().compareTo(threshold) > 0){
-            violations.add("(Amount_Threshold)Transaction amount exceeds the threshold of " + threshold);
+            violations.add("AMOUNT_THRESHOLD");
         }
         return;
     }

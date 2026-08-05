@@ -5,8 +5,10 @@ import com.transactionmonitoring.backend.repository.RulesRepository;
 import com.transactionmonitoring.backend.entity.Alert;
 import com.transactionmonitoring.backend.repository.AlertRepository;
 import org.springframework.stereotype.Service;
-
+import com.transactionmonitoring.backend.entity.Logs;
+import com.transactionmonitoring.backend.repository.LogsRepository;
 import java.util.List;
+import java.time.LocalDateTime;
 
 
 @Service
@@ -14,11 +16,14 @@ public class AlertService {
 
     private final AlertRepository alertRepository;
     private final RulesRepository ruleRepository;
+    private final LogService logService;
 
     public AlertService(AlertRepository alertRepository,
-                        RulesRepository ruleRepository) {
+                        RulesRepository ruleRepository,
+                        LogService logService) {
         this.alertRepository = alertRepository;
         this.ruleRepository = ruleRepository;
+        this.logService = logService;
     }
 
     public void createAlerts(Transaction transaction,
@@ -89,5 +94,26 @@ public class AlertService {
             default:
                 return "Rule violated.";
         }
+    }
+    public List<Alert> getAllAlerts(){
+        return alertRepository.findAll();
+    }
+    public Alert getAlertById(Long alertId){
+        return alertRepository.findById(alertId).orElseThrow(() -> new RuntimeException("Alert not found"));
+    }
+    public Alert updateAlertStatus(Long alertId,String status,String action,String description){
+        Alert alert = alertRepository.findById(alertId).orElseThrow(()->new RuntimeException("Alert not found"));
+        alert.setAlertStatus(status);
+        String oldStatus = alert.getAlertStatus();
+        Alert updatedAlert = alertRepository.save(alert);
+        Logs log = new Logs();
+        log.setAlertId(alertId);
+        log.setAction(action);
+        log.setOldStatus(oldStatus);
+        log.setNewStatus(status);
+        log.setDescription(description);
+        log.setCreatedAt(LocalDateTime.now());
+        logService.saveLog(log);    
+        return  updatedAlert;
     }
 }
