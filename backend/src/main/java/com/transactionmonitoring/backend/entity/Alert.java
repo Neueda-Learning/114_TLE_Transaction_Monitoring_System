@@ -1,6 +1,7 @@
 package com.transactionmonitoring.backend.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 @Entity
 @Table(name = "alerts")
 public class Alert {
@@ -33,7 +34,15 @@ public class Alert {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now(ZoneOffset.UTC);
+        }
+    }
+
     public Alert() {
+        // required by JPA
     }
 
     public Long getAlertId() {

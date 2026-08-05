@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -32,10 +33,12 @@ public class RandomTransactionGenerator {
             "TRANSFER", "WITHDRAWAL", "DEPOSIT", "PAYMENT", "REFUND", "POS_PURCHASE"
     );
 
+    private static final String STATUS_COMPLETED = "COMPLETED";
+
     // Weighted status distribution: mostly COMPLETED, occasionally others
     private static final List<String> WEIGHTED_STATUSES = List.of(
-            "COMPLETED", "COMPLETED", "COMPLETED", "COMPLETED", "COMPLETED",
-            "COMPLETED", "COMPLETED", "PENDING", "PENDING", "FAILED"
+            STATUS_COMPLETED, STATUS_COMPLETED, STATUS_COMPLETED, STATUS_COMPLETED, STATUS_COMPLETED,
+            STATUS_COMPLETED, STATUS_COMPLETED, "PENDING", "PENDING", "FAILED"
     );
 
     private static final List<String> PAYEE_NAMES = List.of(
@@ -89,8 +92,8 @@ public class RandomTransactionGenerator {
     }
 
     private LocalDateTime generateTransactionDate() {
-        long secondsBack = (long) (RANDOM.nextDouble() * 86_400); // up to 24 h ago
-        return LocalDateTime.now().minusSeconds(secondsBack);
+        long secondsBack = RANDOM.nextLong(86_400); // up to 24 h ago
+        return LocalDateTime.now(ZoneOffset.UTC).minusSeconds(secondsBack);
     }
 
     private <T> T randomFrom(List<T> list) {
