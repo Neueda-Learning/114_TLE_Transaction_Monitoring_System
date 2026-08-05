@@ -102,11 +102,7 @@ public class AlertService {
     }
     public Alert updateAlertStatus(Long alertId,String status,String action,String description){
         Alert alert = alertRepository.findById(alertId).orElseThrow(()->new RuntimeException("Alert not found"));
-<<<<<<< HEAD
         String oldStatus = alert.getAlertStatus();
-=======
-        String oldStatus = alert.getAlertStatus();  // capture BEFORE overwriting
->>>>>>> 0d7019c400c1ccaeca2c297e894c1f131247152c
         alert.setAlertStatus(status);
         Alert updatedAlert = alertRepository.save(alert);
         Logs log = new Logs();
