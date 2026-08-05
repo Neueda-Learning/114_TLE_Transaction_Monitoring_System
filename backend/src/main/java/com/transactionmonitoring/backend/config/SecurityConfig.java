@@ -47,6 +47,7 @@ public class SecurityConfig {
                                 "/api/auth/reset-password"
                         ).permitAll()
                         .requestMatchers("/transactions", "/transactions/**").permitAll()
+                        .requestMatchers("/api/simulator", "/api/simulator/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

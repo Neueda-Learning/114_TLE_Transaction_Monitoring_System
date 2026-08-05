@@ -6,9 +6,9 @@ import com.transactionmonitoring.backend.entity.Alert;
 import com.transactionmonitoring.backend.repository.AlertRepository;
 import org.springframework.stereotype.Service;
 import com.transactionmonitoring.backend.entity.Logs;
-import com.transactionmonitoring.backend.repository.LogsRepository;
 import java.util.List;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 
 @Service
@@ -47,7 +47,7 @@ public class AlertService {
 
             alert.setSeverity(getSeverity(violation));
 
-            alert.setAlertMessage(getMessage(violation, transaction));
+            alert.setAlertMessage(getMessage(violation));
 
             alertRepository.save(alert);
         }
@@ -74,8 +74,7 @@ public class AlertService {
         }
     }
 
-    private String getMessage(String violation,
-                              Transaction transaction) {
+    private String getMessage(String violation) {
 
         switch (violation) {
 
@@ -103,8 +102,8 @@ public class AlertService {
     }
     public Alert updateAlertStatus(Long alertId,String status,String action,String description){
         Alert alert = alertRepository.findById(alertId).orElseThrow(()->new RuntimeException("Alert not found"));
+        String oldStatus = alert.getAlertStatus();  // capture BEFORE overwriting
         alert.setAlertStatus(status);
-        String oldStatus = alert.getAlertStatus();
         Alert updatedAlert = alertRepository.save(alert);
         Logs log = new Logs();
         log.setAlertId(alertId);
@@ -112,7 +111,7 @@ public class AlertService {
         log.setOldStatus(oldStatus);
         log.setNewStatus(status);
         log.setDescription(description);
-        log.setCreatedAt(LocalDateTime.now());
+        log.setCreatedAt(LocalDateTime.now(ZoneOffset.UTC));
         logService.saveLog(log);    
         return  updatedAlert;
     }
