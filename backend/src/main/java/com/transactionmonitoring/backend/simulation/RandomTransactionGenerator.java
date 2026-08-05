@@ -58,7 +58,7 @@ public class RandomTransactionGenerator {
         tx.setAmount(generateAmount());
         tx.setCurrency(randomFrom(CURRENCIES));
         tx.setTransactionType(randomFrom(TRANSACTION_TYPES));
-        tx.setPayeeid(generatePayeeId());
+        tx.setPayeeId(generatePayeeId());
         tx.setPayeeName(randomFrom(PAYEE_NAMES));
         tx.setTransactionDate(generateTransactionDate());
         tx.setStatus(randomFrom(WEIGHTED_STATUSES));
