@@ -27,6 +27,9 @@ public class Transaction {
     @Column(name = "payee_id")
     private String payeeId;
 
+    @Column(name = "transaction_status")
+    private String transactionStatus;
+
     @Column(name = "payee_name")
     private String payeeName;
 
@@ -101,6 +104,12 @@ public class Transaction {
     }
     public String getPayeeId(){
         return payeeId;
+    }
+    public String getTransactionStatus(){
+        return transactionStatus;
+    }
+    public void setTransactionStatus(String transactionStatus){
+        this.transactionStatus = transactionStatus;
     }
     
 
