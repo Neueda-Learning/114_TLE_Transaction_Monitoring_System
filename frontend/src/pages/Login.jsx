@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import Modal from '../components/Common/Modal'
 import LoginCard from '../components/LoginCard'
+import Footer from '../components/Layout/Footer'
 import { useAuth } from '../context/useAuth'
 import '../styles/login.css'
 
@@ -260,6 +261,8 @@ function Login() {
           </form>
         )}
       </Modal>
+
+      <Footer />
     </div>
   )
 }

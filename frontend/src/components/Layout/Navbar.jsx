@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useAppData } from '../../context/useAppData'
 
 const titleByPath = {
   '/dashboard': 'Transaction Monitoring Dashboard',
@@ -12,6 +13,13 @@ const titleByPath = {
 function Navbar({ onOpenSidebar }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { alerts, alertNotifications } = useAppData()
+
+  // Active alerts from DB; pulse dot only when SSE has pushed new ones this session
+  const activeAlertCount = alerts.filter((a) =>
+    ['OPEN', 'ACKNOWLEDGED', 'INVESTIGATING'].includes(a.status),
+  ).length
+  const hasNewPush = alertNotifications.length > 0
 
   const currentTitle =
     titleByPath[location.pathname] ||
@@ -34,11 +42,12 @@ function Navbar({ onOpenSidebar }) {
         <button
           type="button"
           className="notification-pill"
-          title="Unread notifications"
+          title="View active alerts"
           onClick={() => navigate('/alerts')}
         >
-          <span className="dot" />
-          4 new alerts
+          {hasNewPush && <span className="dot" />}
+          {!hasNewPush && activeAlertCount > 0 && <span className="dot dot-static" />}
+          {activeAlertCount} {activeAlertCount === 1 ? 'alert' : 'alerts'} active
         </button>
       </div>
     </header>

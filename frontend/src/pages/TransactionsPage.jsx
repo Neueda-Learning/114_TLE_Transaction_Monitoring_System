@@ -144,7 +144,7 @@ function TransactionsPage() {
               { label: 'All Risk Status', value: 'ALL' },
               { label: 'Normal', value: 'NORMAL' },
               { label: 'Suspicious', value: 'SUSPICIOUS' },
-              { label: 'Blocked', value: 'BLOCKED' },
+              { label: 'Fraudulent', value: 'FRAUDULENT' },
             ]}
           />
 

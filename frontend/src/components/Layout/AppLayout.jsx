@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { useState } from 'react'
 import Sidebar from './Sidebar'
 import Navbar from './Navbar'
+import Footer from './Footer'
 import { useAppData } from '../../context/useAppData'
 
 const severityLabel = (severity) => (severity || 'LOW').toLowerCase()
@@ -19,6 +20,7 @@ function AppLayout() {
         <main className="content-area">
           <Outlet />
         </main>
+        <Footer />
       </div>
 
       {isSidebarOpen ? (
