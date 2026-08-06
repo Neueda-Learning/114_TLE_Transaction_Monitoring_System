@@ -35,7 +35,4 @@ public class LogService {
     public void deleteLogById(Long id){
         logsRepository.deleteById(id);
     }
-    public List<Logs> getLogsByAlertId(Long alertId) {
-        return logsRepository.findByAlertId(alertId);
-    }
 }
