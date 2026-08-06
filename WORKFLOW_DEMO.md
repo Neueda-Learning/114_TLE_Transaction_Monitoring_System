@@ -253,6 +253,13 @@ public void generateTransaction() {
 
 ## 🔄 Complete Workflow Scenario
 
+### Demo Assumptions
+
+- Backend and frontend are running on local default ports.
+- Demo uses seeded users and local development credentials.
+- Simulator is active during real-time observation steps.
+- Browser session keeps a valid JWT token while demoing protected routes.
+
 ### Step 1: Monitor Real-Time Activity
 1. User logs in as Admin (username: admin, password: admin123)
 2. Navigate to Alerts page (`/alerts`)
