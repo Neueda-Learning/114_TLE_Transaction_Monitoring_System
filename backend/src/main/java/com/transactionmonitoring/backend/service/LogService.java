@@ -27,6 +27,10 @@ public class LogService {
         return logsRepository.findById(id);
     }
 
+    public List<Logs> getLogsByAlertId(Long alertId) {
+        return logsRepository.findByAlertId(alertId);
+    }
+
     //Delete log by id
     public void deleteLogById(Long id){
         logsRepository.deleteById(id);
