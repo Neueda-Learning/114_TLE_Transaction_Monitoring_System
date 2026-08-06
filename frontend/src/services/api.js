@@ -153,6 +153,17 @@ export const updateAlertStatus = async (alertId, status, note = '') => {
   }
 }
 
+export const rollbackTransaction = async (transactionId, note = '') => {
+  try {
+    const response = await apiClient.patch(`/transactions/${transactionId}/rollback`, {
+      description: note.trim(),
+    })
+    return normalizeTransaction(response.data)
+  } catch (error) {
+    throw new Error('Unable to rollback transaction.', { cause: error })
+  }
+}
+
 export const updateRule = async (ruleId, payload) => {
   try {
     await apiClient.put(`/rules/${ruleId}`, mapRulePayloadToApi(payload))

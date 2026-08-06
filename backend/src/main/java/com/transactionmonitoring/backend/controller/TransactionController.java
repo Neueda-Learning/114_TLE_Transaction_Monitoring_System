@@ -35,13 +35,28 @@ public class TransactionController {
     }
 
     @PatchMapping("/{transactionId}/rollback")
-    public Transaction rollbackTransaction(@PathVariable Long transactionId){
+    public Transaction rollbackTransaction(@PathVariable Long transactionId,
+                                          @RequestBody(required = false) RollbackRequest request){
         try {
-            return transactionService.rollbackTransaction(transactionId);
+            return transactionService.rollbackTransaction(
+                    transactionId,
+                    request == null ? null : request.getDescription());
         } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, ex.getMessage());
         } catch (IllegalStateException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
+    }
+
+    public static class RollbackRequest {
+        private String description;
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
         }
     }
 

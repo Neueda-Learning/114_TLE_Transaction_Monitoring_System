@@ -64,6 +64,10 @@ public class TransactionService {
     }
 
     public Transaction rollbackTransaction(Long transactionId){
+        return rollbackTransaction(transactionId, null);
+    }
+
+    public Transaction rollbackTransaction(Long transactionId, String description){
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
         List<Alert> alerts = alertRepository.findAllByTransactionId(transactionId);
@@ -118,7 +122,11 @@ public class TransactionService {
             log.setAction("ROLLBACK");
             log.setOldStatus(oldStatus);
             log.setNewStatus("ROLLED_BACK");
-            log.setDescription("Transaction rolled back by analyst");
+            String trimmedDescription = description == null ? "" : description.trim();
+            log.setDescription(
+                    trimmedDescription.isEmpty()
+                            ? "Transaction rolled back by analyst"
+                            : "Transaction rolled back by analyst. Note: " + trimmedDescription);
             logService.saveLog(log);
         }
 

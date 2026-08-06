@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   createRule,
   getAlerts,
+  rollbackTransaction,
   getRules,
   getTransactions,
   updateAlertStatus,
@@ -169,6 +170,19 @@ export function AppDataProvider({ children }) {
   const changeAlertStatus = useCallback(async (alertId, status, note = '') => {
     const trimmedNote = note.trim()
 
+    if (status === 'ROLLBACK') {
+      const targetAlert = alerts.find((alert) => alert.id === alertId)
+      const transactionId = targetAlert?.transactionId
+
+      if (!transactionId || transactionId === 'N/A') {
+        throw new Error('Unable to rollback alert without a linked transaction.')
+      }
+
+      await rollbackTransaction(transactionId, trimmedNote)
+      await loadData()
+      return
+    }
+
     await updateAlertStatus(alertId, status, trimmedNote)
 
     setAlerts((currentAlerts) =>
@@ -189,7 +203,7 @@ export function AppDataProvider({ children }) {
         }
       }),
     )
-  }, [])
+  }, [alerts, loadData])
 
   const upsertRule = useCallback(async (ruleId, payload) => {
     if (ruleId) {

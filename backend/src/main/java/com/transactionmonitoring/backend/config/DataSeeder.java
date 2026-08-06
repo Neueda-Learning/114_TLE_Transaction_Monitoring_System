@@ -10,6 +10,8 @@ import com.transactionmonitoring.backend.repository.TransactionRepository;
 import com.transactionmonitoring.backend.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Profile("!test")
 public class DataSeeder {
 
+    private static final String STATUS_PENDING = "PENDING";
+    private static final String STATUS_OPEN = "OPEN";
+    private static final String STATUS_ACKNOWLEDGED = "ACKNOWLEDGED";
+    private static final String RULE_TYPE_BEHAVIORAL = "BEHAVIORAL";
+
+    private final String adminSeedPassword;
+    private final String analystSeedPassword;
+
+    public DataSeeder(
+            @Value("${app.seed.admin-password}") String adminSeedPassword,
+            @Value("${app.seed.analyst-password}") String analystSeedPassword) {
+        this.adminSeedPassword = adminSeedPassword;
+        this.analystSeedPassword = analystSeedPassword;
+    }
+
+    private static LocalDateTime utcNow() {
+        return LocalDateTime.now(ZoneOffset.UTC);
+    }
+
     @Bean
     CommandLineRunner seedUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
@@ -28,7 +49,7 @@ public class DataSeeder {
                 User admin = new User();
                 admin.setEmployeeId("EMP-ADMIN-01");
                 admin.setUsername("admin");
-                admin.setPasswordHash(passwordEncoder.encode("admin123"));
+                admin.setPasswordHash(passwordEncoder.encode(adminSeedPassword));
                 admin.setFullName("Alex Morgan");
                 admin.setEmail("admin@trustmonitor.local");
                 admin.setRole("ADMIN");
@@ -39,7 +60,7 @@ public class DataSeeder {
                 User analyst = new User();
                 analyst.setEmployeeId("EMP-ANALYST-01");
                 analyst.setUsername("analyst");
-                analyst.setPasswordHash(passwordEncoder.encode("analyst123"));
+                analyst.setPasswordHash(passwordEncoder.encode(analystSeedPassword));
                 analyst.setFullName("Riya Sharma");
                 analyst.setEmail("analyst@trustmonitor.local");
                 analyst.setRole("ANALYST");
@@ -60,9 +81,9 @@ public class DataSeeder {
                 txn1.setPayeeId("PYEE-001");
                 txn1.setPayeeName("Amazon Inc");
                 txn1.setFraudStatus("NORMAL");
-                txn1.setInvestigationStatus("OPEN");
-                txn1.setTransactionDate(LocalDateTime.now().minusHours(2));
-                txn1.setStatus("PENDING");
+                txn1.setInvestigationStatus(STATUS_OPEN);
+                txn1.setTransactionDate(utcNow().minusHours(2));
+                txn1.setStatus(STATUS_PENDING);
                 transactionRepository.save(txn1);
 
                 Transaction txn2 = new Transaction();
@@ -73,9 +94,9 @@ public class DataSeeder {
                 txn2.setPayeeId("PYEE-002");
                 txn2.setPayeeName("Unknown Merchant");
                 txn2.setFraudStatus("SUSPICIOUS");
-                txn2.setInvestigationStatus("OPEN");
-                txn2.setTransactionDate(LocalDateTime.now().minusHours(1));
-                txn2.setStatus("PENDING");
+                txn2.setInvestigationStatus(STATUS_OPEN);
+                txn2.setTransactionDate(utcNow().minusHours(1));
+                txn2.setStatus(STATUS_PENDING);
                 transactionRepository.save(txn2);
 
                 Transaction txn3 = new Transaction();
@@ -86,9 +107,9 @@ public class DataSeeder {
                 txn3.setPayeeId("PYEE-003");
                 txn3.setPayeeName("Crypto Exchange XYZ");
                 txn3.setFraudStatus("FRAUDULENT");
-                txn3.setInvestigationStatus("OPEN");
-                txn3.setTransactionDate(LocalDateTime.now().minusMinutes(30));
-                txn3.setStatus("PENDING");
+                txn3.setInvestigationStatus(STATUS_OPEN);
+                txn3.setTransactionDate(utcNow().minusMinutes(30));
+                txn3.setStatus(STATUS_PENDING);
                 transactionRepository.save(txn3);
 
                 Transaction txn4 = new Transaction();
@@ -99,9 +120,9 @@ public class DataSeeder {
                 txn4.setPayeeId("PYEE-004");
                 txn4.setPayeeName("Local Store");
                 txn4.setFraudStatus("NORMAL");
-                txn4.setInvestigationStatus("OPEN");
-                txn4.setTransactionDate(LocalDateTime.now().minusMinutes(15));
-                txn4.setStatus("PENDING");
+                txn4.setInvestigationStatus(STATUS_OPEN);
+                txn4.setTransactionDate(utcNow().minusMinutes(15));
+                txn4.setStatus(STATUS_PENDING);
                 transactionRepository.save(txn4);
             }
         };
@@ -118,27 +139,27 @@ public class DataSeeder {
                 rule1.setOperator("GREATER_THAN");
                 rule1.setThresholdValue("20000");
                 rule1.setIsActive(true);
-                rule1.setCreatedAt(LocalDateTime.now().minusDays(10));
+                rule1.setCreatedAt(utcNow().minusDays(10));
                 rulesRepository.save(rule1);
 
                 Rules rule2 = new Rules();
                 rule2.setRuleName("Crypto Exchange Monitor");
-                rule2.setRuleType("BEHAVIORAL");
+                rule2.setRuleType(RULE_TYPE_BEHAVIORAL);
                 rule2.setFieldName("payeeName");
                 rule2.setOperator("CONTAINS");
                 rule2.setThresholdValue("Crypto");
                 rule2.setIsActive(true);
-                rule2.setCreatedAt(LocalDateTime.now().minusDays(7));
+                rule2.setCreatedAt(utcNow().minusDays(7));
                 rulesRepository.save(rule2);
 
                 Rules rule3 = new Rules();
                 rule3.setRuleName("Unknown Merchant Alert");
-                rule3.setRuleType("BEHAVIORAL");
+                rule3.setRuleType(RULE_TYPE_BEHAVIORAL);
                 rule3.setFieldName("payeeName");
                 rule3.setOperator("CONTAINS");
                 rule3.setThresholdValue("Unknown");
                 rule3.setIsActive(true);
-                rule3.setCreatedAt(LocalDateTime.now().minusDays(5));
+                rule3.setCreatedAt(utcNow().minusDays(5));
                 rulesRepository.save(rule3);
 
                 Rules rule4 = new Rules();
@@ -149,7 +170,7 @@ public class DataSeeder {
                 rule4.setThresholdValue("10000");
                 rule4.setTimeWindowMinutes(1440);
                 rule4.setIsActive(false);
-                rule4.setCreatedAt(LocalDateTime.now().minusDays(3));
+                rule4.setCreatedAt(utcNow().minusDays(3));
                 rulesRepository.save(rule4);
 
                 Rules rule5 = new Rules();
@@ -157,7 +178,7 @@ public class DataSeeder {
                 rule5.setRuleType("FRAUD_THRESHOLD");
                 rule5.setThresholdValue("70");
                 rule5.setIsActive(true);
-                rule5.setCreatedAt(LocalDateTime.now().minusDays(1));
+                rule5.setCreatedAt(utcNow().minusDays(1));
                 rulesRepository.save(rule5);
             }
         };
@@ -171,11 +192,11 @@ public class DataSeeder {
                 Alert alert1 = new Alert();
                 alert1.setTransactionId(1L);
                 alert1.setRuleId(1L);
-                alert1.setAlertType("BEHAVIORAL");
+                alert1.setAlertType(RULE_TYPE_BEHAVIORAL);
                 alert1.setSeverity("HIGH");
-                alert1.setAlertStatus("OPEN");
+                alert1.setAlertStatus(STATUS_OPEN);
                 alert1.setAlertMessage("Transaction from high-risk customer - First transaction to new merchant");
-                alert1.setCreatedAt(LocalDateTime.now().minusMinutes(5));
+                alert1.setCreatedAt(utcNow().minusMinutes(5));
                 alertRepository.save(alert1);
 
                 // Alert 2: MEDIUM severity, OPEN status
@@ -184,20 +205,20 @@ public class DataSeeder {
                 alert2.setRuleId(2L);
                 alert2.setAlertType("AMOUNT_THRESHOLD");
                 alert2.setSeverity("MEDIUM");
-                alert2.setAlertStatus("OPEN");
+                alert2.setAlertStatus(STATUS_OPEN);
                 alert2.setAlertMessage("Transaction exceeds daily limit - Amount $25,000 > Threshold $20,000");
-                alert2.setCreatedAt(LocalDateTime.now().minusMinutes(3));
+                alert2.setCreatedAt(utcNow().minusMinutes(3));
                 alertRepository.save(alert2);
 
                 // Alert 3: HIGH severity, INVESTIGATING status
                 Alert alert3 = new Alert();
                 alert3.setTransactionId(3L);
                 alert3.setRuleId(3L);
-                alert3.setAlertType("BEHAVIORAL");
+                alert3.setAlertType(RULE_TYPE_BEHAVIORAL);
                 alert3.setSeverity("HIGH");
                 alert3.setAlertStatus("INVESTIGATING");
                 alert3.setAlertMessage("High-risk crypto exchange transaction detected - $50,000 to crypto service");
-                alert3.setCreatedAt(LocalDateTime.now().minusMinutes(2));
+                alert3.setCreatedAt(utcNow().minusMinutes(2));
                 alertRepository.save(alert3);
 
                 // Alert 4: LOW severity, ACKNOWLEDGED status
@@ -206,9 +227,9 @@ public class DataSeeder {
                 alert4.setRuleId(4L);
                 alert4.setAlertType("ROUTINE");
                 alert4.setSeverity("LOW");
-                alert4.setAlertStatus("ACKNOWLEDGED");
+                alert4.setAlertStatus(STATUS_ACKNOWLEDGED);
                 alert4.setAlertMessage("Routine low-value transaction - $150 purchase at local retail store");
-                alert4.setCreatedAt(LocalDateTime.now().minusMinutes(1));
+                alert4.setCreatedAt(utcNow().minusMinutes(1));
                 alertRepository.save(alert4);
             }
         };
