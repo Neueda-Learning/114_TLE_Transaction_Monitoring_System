@@ -6,8 +6,7 @@ WORKDIR /app
 COPY . .
 
 RUN chmod +x mvnw
-RUN ./mvnw clean package -DskipTests
-
+RUN ./mvnw clean verify
 # Stage 2 - Run the application
 FROM eclipse-temurin:25-jre
 

@@ -15,17 +15,7 @@ pipeline {
             }
         }
 
-        stage('Backend Tests') {
-            steps {
-                dir('backend') {
-                    echo 'Running backend test suite'
-                    sh '''
-                    chmod +x mvnw
-                    ./mvnw test
-                    '''
-                }
-            }
-        }
+        
 
         stage('Frontend Checks') {
             steps {
