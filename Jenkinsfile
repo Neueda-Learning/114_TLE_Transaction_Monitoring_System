@@ -9,6 +9,14 @@ pipeline {
             }
         }
 
+        stage('Backend Tests') {
+            steps {
+                dir('backend') {
+                    sh './mvnw test'
+                }
+            }
+        }
+
         stage('Build Docker Images') {
             steps {
                 sh 'docker-compose build'
