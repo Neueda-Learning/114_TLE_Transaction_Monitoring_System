@@ -17,13 +17,16 @@ public class AlertService {
     private final AlertRepository alertRepository;
     private final RulesRepository ruleRepository;
     private final LogService logService;
+    private final AlertStreamService alertStreamService;
 
     public AlertService(AlertRepository alertRepository,
                         RulesRepository ruleRepository,
-                        LogService logService) {
+                        LogService logService,
+                        AlertStreamService alertStreamService) {
         this.alertRepository = alertRepository;
         this.ruleRepository = ruleRepository;
         this.logService = logService;
+        this.alertStreamService = alertStreamService;
     }
 
     public void createAlerts(Transaction transaction,
@@ -49,7 +52,8 @@ public class AlertService {
 
             alert.setAlertMessage(getMessage(violation));
 
-            alertRepository.save(alert);
+            Alert savedAlert = alertRepository.save(alert);
+            alertStreamService.publishAlertCreated(savedAlert);
         }
     }
 
