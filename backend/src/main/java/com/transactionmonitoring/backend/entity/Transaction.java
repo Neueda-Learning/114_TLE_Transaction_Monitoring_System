@@ -27,6 +27,20 @@ public class Transaction {
     @Column(name = "payee_id")
     private String payeeId;
 
+    @Column(name = "fraud_status")
+    private String fraudStatus;
+
+    public String getFraudStatus() {
+        return fraudStatus;
+    }
+
+public void setFraudStatus(String fraudStatus) {
+    this.fraudStatus = fraudStatus;
+}
+
+    @Column(name = "investigation_status")
+    private String investigationStatus;
+
     @Column(name = "payee_name")
     private String payeeName;
 
@@ -101,6 +115,12 @@ public class Transaction {
     }
     public String getPayeeId(){
         return payeeId;
+    }
+    public String getInvestigationStatus(){
+        return investigationStatus;
+    }
+    public void setInvestigationStatus(String investigationStatus){
+        this.investigationStatus = investigationStatus;
     }
     
 
