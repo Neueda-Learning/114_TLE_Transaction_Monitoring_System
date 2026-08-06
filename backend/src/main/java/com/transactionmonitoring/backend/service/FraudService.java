@@ -9,6 +9,8 @@ import java.util.List;
 @Service
 public class FraudService {
 
+    private static final int DEFAULT_FRAUD_THRESHOLD = 70;
+
     private final RulesRepository rulesRepository;
 
     public FraudService(RulesRepository rulesRepository) {
@@ -44,7 +46,14 @@ public class FraudService {
         Rules fraudRule =
                 rulesRepository.findByRuleTypeAndIsActiveTrue("FRAUD_THRESHOLD");
 
-        int threshold = Integer.parseInt(fraudRule.getThresholdValue());
+        int threshold = DEFAULT_FRAUD_THRESHOLD;
+        if (fraudRule != null && fraudRule.getThresholdValue() != null) {
+            try {
+                threshold = Integer.parseInt(fraudRule.getThresholdValue());
+            } catch (NumberFormatException ignored) {
+                threshold = DEFAULT_FRAUD_THRESHOLD;
+            }
+        }
 
         if(score >= threshold){
             return "FRAUDULENT";

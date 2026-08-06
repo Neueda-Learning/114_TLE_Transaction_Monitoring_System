@@ -13,10 +13,12 @@ import java.time.LocalDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 // Seeds two demo accounts (one per role) and test transactions on first startup
 @Configuration
+@Profile("!test")
 public class DataSeeder {
 
     @Bean
@@ -149,6 +151,14 @@ public class DataSeeder {
                 rule4.setIsActive(false);
                 rule4.setCreatedAt(LocalDateTime.now().minusDays(3));
                 rulesRepository.save(rule4);
+
+                Rules rule5 = new Rules();
+                rule5.setRuleName("Fraud Threshold");
+                rule5.setRuleType("FRAUD_THRESHOLD");
+                rule5.setThresholdValue("70");
+                rule5.setIsActive(true);
+                rule5.setCreatedAt(LocalDateTime.now().minusDays(1));
+                rulesRepository.save(rule5);
             }
         };
     }

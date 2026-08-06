@@ -19,7 +19,9 @@ CREATE TABLE transactions (
     payee_id VARCHAR(50),
     payee_name VARCHAR(100),
     transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status VARCHAR(20)
+    status VARCHAR(20),
+    investigation_status VARCHAR(20) DEFAULT 'SUCCESS',
+    fraud_status VARCHAR(20) DEFAULT 'NORMAL'
 );
 
 
@@ -75,8 +77,6 @@ insert into rules(rule_name,rule_type,field_name,operator,threshold_value,is_act
 INSERT INTO rules(rule_name,rule_type,threshold_value,time_window_minutes,is_active) Values ('Velocity Rule', 'VELOCITY','5',10,true);
 Insert into rules(rule_name,rule_type,threshold_value,is_active) values('Daily Limit Rule','DAILY_LIMIT','50000',true);
 insert into rules(rule_name,rule_type,threshold_value,is_active) values('New Payee Rule','NEW_PAYEE',NULL,True);
-alter table transactions add column investigation_status varchar(20) default 'SUCCESS';
-ALTER TABLE transactions ADD COLUMN fraud_status VARCHAR(20) DEFAULT 'NORMAL';
 INSERT INTO rules (
     rule_type,
     rule_name,
