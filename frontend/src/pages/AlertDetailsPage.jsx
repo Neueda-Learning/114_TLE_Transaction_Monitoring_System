@@ -3,10 +3,27 @@ import { Link, useParams } from 'react-router-dom'
 import Badge from '../components/Common/Badge'
 import Modal from '../components/Common/Modal'
 import { useAppData } from '../context/useAppData'
+import { useAuth } from '../context/useAuth'
 import { getAlertLogs } from '../services/api'
 import { formatCurrency, formatDateTime } from '../utils/formatters'
 
-const noteRequiredStatuses = new Set(['CLOSED', 'DISMISSED'])
+const noteRequiredStatuses = new Set(['ACKNOWLEDGED', 'INVESTIGATING', 'CLOSED', 'DISMISSED', 'ROLLBACK'])
+
+const noteModalLabels = {
+  ACKNOWLEDGED: 'Acknowledge Alert',
+  INVESTIGATING: 'Start Investigation',
+  CLOSED: 'Close Alert',
+  DISMISSED: 'Dismiss Alert',
+  ROLLBACK: 'Rollback Alert',
+}
+
+const notePrompts = {
+  ACKNOWLEDGED: 'Why are you acknowledging this alert?',
+  INVESTIGATING: 'What is the reason for starting an investigation?',
+  CLOSED: 'Why are you closing this alert?',
+  DISMISSED: 'Why are you dismissing this alert?',
+  ROLLBACK: 'Why are you rolling back this alert?',
+}
 
 const formatLogEntry = (log) => {
   const action = log.description?.trim()
@@ -23,7 +40,9 @@ const formatLogEntry = (log) => {
 
 function AlertDetailsPage() {
   const { alertId } = useParams()
-  const { alerts, transactions, changeAlertStatus } = useAppData()
+  const { alerts, transactions, changeAlertStatus, isLoading } = useAppData()
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'ADMIN'
   const [actionLoading, setActionLoading] = useState(false)
   const [pendingStatus, setPendingStatus] = useState('')
   const [note, setNote] = useState('')
@@ -99,7 +118,7 @@ function AlertDetailsPage() {
 
     const trimmedNote = note.trim()
     if (!trimmedNote) {
-      setNoteError('Add a note before closing or dismissing this alert.')
+      setNoteError('A note is required before proceeding.')
       return
     }
 
@@ -110,11 +129,13 @@ function AlertDetailsPage() {
   if (!alert) {
     return (
       <section className="state-panel surface-elevated">
-        <h2>Alert not found</h2>
-        <p>The requested alert does not exist in the active queue.</p>
-        <Link className="table-action" to="/alerts">
-          Return to alert list
-        </Link>
+        {isLoading ? <p>Loading alert...</p> : (
+          <>
+            <h2>Alert not found</h2>
+            <p>The requested alert does not exist in the active queue.</p>
+            <Link className="table-action" to="/alerts">Return to alert list</Link>
+          </>
+        )}
       </section>
     )
   }
@@ -185,7 +206,7 @@ function AlertDetailsPage() {
                 Type <span>{linkedTransaction.transactionType}</span>
               </p>
               <p>
-                Risk Status <span>{linkedTransaction.riskStatus}</span>
+                Risk Status <Badge label={linkedTransaction.riskStatus} variant={linkedTransaction.riskStatus} />
               </p>
               <p>
                 Timestamp <span>{formatDateTime(linkedTransaction.timestamp)}</span>
@@ -233,7 +254,7 @@ function AlertDetailsPage() {
             type="button"
             className="primary-btn"
             disabled={actionLoading}
-            onClick={() => handleStatusChange('ACKNOWLEDGED')}
+            onClick={() => openNoteModal('ACKNOWLEDGED')}
           >
             Acknowledge
           </button>
@@ -241,7 +262,7 @@ function AlertDetailsPage() {
             type="button"
             className="primary-btn secondary"
             disabled={actionLoading}
-            onClick={() => handleStatusChange('INVESTIGATING')}
+            onClick={() => openNoteModal('INVESTIGATING')}
           >
             Start Investigation
           </button>
@@ -261,11 +282,22 @@ function AlertDetailsPage() {
           >
             Dismiss Alert
           </button>
+          {isAdmin ? (
+            <button
+              type="button"
+              className="primary-btn"
+              style={{ backgroundColor: '#9c27b0' }}
+              disabled={actionLoading}
+              onClick={() => openNoteModal('ROLLBACK')}
+            >
+              Rollback
+            </button>
+          ) : null}
         </div>
       </article>
 
       <Modal
-        title={pendingStatus === 'DISMISSED' ? 'Dismiss Alert' : 'Close Alert'}
+        title={noteModalLabels[pendingStatus] || 'Update Alert'}
         isOpen={noteRequiredStatuses.has(pendingStatus)}
         onClose={closeNoteModal}
         footer={
@@ -291,7 +323,7 @@ function AlertDetailsPage() {
       >
         <form id="alert-note-form" className="rule-form" onSubmit={submitStatusWithNote}>
           <label>
-            Why are you {pendingStatus === 'DISMISSED' ? 'dismissing' : 'closing'} this alert?
+            {notePrompts[pendingStatus] || 'Add a note for this action.'}
             <textarea
               rows={4}
               required
