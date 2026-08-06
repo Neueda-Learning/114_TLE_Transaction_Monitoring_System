@@ -31,6 +31,16 @@ Alerts Table Populates
 
 ## ✅ Verified Features
 
+### Demo Evidence Capture Checklist
+
+Use this checklist during walkthrough recordings or manual demo sessions:
+
+- Capture login event with user role visible.
+- Capture alert count change before/after simulator events.
+- Capture one alert detail view with status transition.
+- Capture one role-based visibility difference (admin vs analyst).
+- Capture final dashboard/alerts state after auto-refresh.
+
 ### 1. Real-Time Notification System (WORKING ✓)
 
 **Evidence:**
