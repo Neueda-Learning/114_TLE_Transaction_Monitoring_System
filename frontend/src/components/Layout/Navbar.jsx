@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 const titleByPath = {
   '/dashboard': 'Transaction Monitoring Dashboard',
@@ -11,6 +11,7 @@ const titleByPath = {
 
 function Navbar({ onOpenSidebar }) {
   const location = useLocation()
+  const navigate = useNavigate()
 
   const currentTitle =
     titleByPath[location.pathname] ||
@@ -30,10 +31,15 @@ function Navbar({ onOpenSidebar }) {
       </div>
 
       <div className="topbar-right">
-        <div className="notification-pill" title="Unread notifications">
+        <button
+          type="button"
+          className="notification-pill"
+          title="Unread notifications"
+          onClick={() => navigate('/alerts')}
+        >
           <span className="dot" />
           4 new alerts
-        </div>
+        </button>
       </div>
     </header>
   )
