@@ -3,6 +3,7 @@ import Card from '../components/Common/Card'
 import Table from '../components/Common/Table'
 import TransactionChart from '../components/Charts/TransactionChart'
 import { useAppData } from '../context/useAppData'
+import { getLogs } from '../services/api'
 import { formatDateTime } from '../utils/formatters'
 
 const PAGE_SIZE = 10
@@ -55,55 +56,8 @@ function AnalyticsPage() {
     setLogsLoading(true)
     setLogsError('')
     try {
-      // Mock logs data - in production, fetch from /api/logs or similar endpoint
-      const mockLogs = [
-        {
-          id: 'LOG001',
-          userId: 'ADMIN001',
-          userName: 'John Admin',
-          action: 'ALERT_STATUS_CHANGED',
-          description: 'Alert ALRT-001 status changed from OPEN to CLOSED',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          changes: 'Status: OPEN → CLOSED',
-        },
-        {
-          id: 'LOG002',
-          userId: 'ANALYST001',
-          userName: 'Jane Analyst',
-          action: 'ALERT_STATUS_CHANGED',
-          description: 'Alert ALRT-002 status changed from OPEN to INVESTIGATING',
-          timestamp: new Date(Date.now() - 7200000).toISOString(),
-          changes: 'Status: OPEN → INVESTIGATING',
-        },
-        {
-          id: 'LOG003',
-          userId: 'ADMIN001',
-          userName: 'John Admin',
-          action: 'RULE_UPDATED',
-          description: 'Rule RULE-001 (AMOUNT_THRESHOLD) updated',
-          timestamp: new Date(Date.now() - 10800000).toISOString(),
-          changes: 'Threshold: 10000 → 15000',
-        },
-        {
-          id: 'LOG004',
-          userId: 'ANALYST002',
-          userName: 'Bob Analyst',
-          action: 'ALERT_ACKNOWLEDGED',
-          description: 'Alert ALRT-003 acknowledged',
-          timestamp: new Date(Date.now() - 14400000).toISOString(),
-          changes: 'Status: OPEN → ACKNOWLEDGED',
-        },
-        {
-          id: 'LOG005',
-          userId: 'ADMIN001',
-          userName: 'John Admin',
-          action: 'RULE_DISABLED',
-          description: 'Rule RULE-002 (VELOCITY) disabled',
-          timestamp: new Date(Date.now() - 18000000).toISOString(),
-          changes: 'Status: ENABLED → DISABLED',
-        },
-      ]
-      setLogs(mockLogs)
+      const apiLogs = await getLogs()
+      setLogs(apiLogs)
     } catch (error) {
       setLogsError(error.message || 'Unable to load logs.')
     } finally {
@@ -117,6 +71,14 @@ function AnalyticsPage() {
     }, 0)
 
     return () => window.clearTimeout(timer)
+  }, [loadLogs])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      loadLogs()
+    }, 15000)
+
+    return () => window.clearInterval(intervalId)
   }, [loadLogs])
 
   const trendData = useMemo(
@@ -137,12 +99,14 @@ function AnalyticsPage() {
   }, [logs, page])
 
   const logColumns = [
-    { key: 'userName', label: 'User', sortable: true },
+    { key: 'alertId', label: 'Alert ID', sortable: true },
     { key: 'action', label: 'Action', sortable: true },
     { key: 'description', label: 'Description', sortable: true },
+    { key: 'oldStatus', label: 'Old Status' },
+    { key: 'newStatus', label: 'New Status' },
     { key: 'changes', label: 'Changes' },
     {
-      key: 'timestamp',
+      key: 'createdAt',
       label: 'Timestamp',
       sortable: true,
       render: (value) => formatDateTime(value),

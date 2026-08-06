@@ -15,6 +15,8 @@ const appendTimelineEvent = (action, timeline = []) => {
   return [...timeline, { time, action }]
 }
 
+const TRANSACTION_POLL_INTERVAL_MS = 5000
+
 const resolveAlertStreamBaseUrl = () =>
   import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8080`
 
@@ -141,6 +143,23 @@ export function AppDataProvider({ children }) {
       eventSource.close()
     }
   }, [isAuthenticated, token, loadData, pushAlertNotification])
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return undefined
+    }
+
+    const intervalId = window.setInterval(async () => {
+      try {
+        const latestTransactions = await getTransactions()
+        setTransactions(latestTransactions)
+      } catch {
+        // Keep last known data if background refresh fails.
+      }
+    }, TRANSACTION_POLL_INTERVAL_MS)
+
+    return () => window.clearInterval(intervalId)
+  }, [isAuthenticated])
 
   useEffect(() => () => {
     notificationTimeoutsRef.current.forEach((timeoutId) => window.clearTimeout(timeoutId))

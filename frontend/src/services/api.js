@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { normalizeAlert, normalizeRule, normalizeTransaction } from './adapters'
+import { normalizeAlert, normalizeLog, normalizeRule, normalizeTransaction } from './adapters'
 
 const SESSION_KEY = 'tm_auth_session'
 
@@ -29,6 +29,7 @@ apiClient.interceptors.request.use((config) => {
 
 const toTransactionList = (items = []) => items.map((item) => normalizeTransaction(item))
 const toRuleList = (items = []) => items.map((item) => normalizeRule(item))
+const toLogList = (items = []) => items.map((item) => normalizeLog(item))
 const toAlertList = (items = [], transactions = [], rules = []) =>
   items.map((item) => normalizeAlert(item, transactions, rules))
 
@@ -126,6 +127,15 @@ export const getRules = async () => {
     return toRuleList(response.data)
   } catch (error) {
     throw new Error('Unable to load rules.', { cause: error })
+  }
+}
+
+export const getLogs = async () => {
+  try {
+    const response = await apiClient.get('/logs')
+    return toLogList(response.data)
+  } catch (error) {
+    throw new Error('Unable to load system activity logs.', { cause: error })
   }
 }
 

@@ -126,3 +126,23 @@ export const normalizeRule = (rule = {}) => {
     lastUpdated: toIsoOrNow(rule.lastUpdated || rule.createdAt || rule.created_at),
   }
 }
+
+export const normalizeLog = (log = {}) => {
+  const logId = log.id || log.logId || log.log_id || `LOG-${Date.now()}`
+  const oldStatus = log.oldStatus || log.old_status || ''
+  const newStatus = log.newStatus || log.new_status || ''
+
+  return {
+    id: String(logId),
+    alertId: log.alertId || log.alert_id || 'N/A',
+    action: log.action || 'SYSTEM_EVENT',
+    oldStatus: oldStatus || '-',
+    newStatus: newStatus || '-',
+    description: log.description || 'No description provided.',
+    createdAt: toIsoOrNow(log.createdAt || log.created_at),
+    changes:
+      oldStatus || newStatus
+        ? `${oldStatus || '-'} -> ${newStatus || '-'}`
+        : 'No status transition',
+  }
+}
