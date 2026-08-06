@@ -8,6 +8,16 @@ The system generates alerts, assigns fraud probability scores to transactions, a
 
 The system supports a single operator/user with authentication to ensure sensitive transaction data is protected.
 
+## Story Quality Checklist
+
+Use this checklist when adding or revising stories:
+
+- Keep each story scoped to one user outcome.
+- Ensure acceptance criteria are testable and unambiguous.
+- Reference impacted module(s) where applicable.
+- Include at least one negative/error-path criterion for sensitive flows.
+- Keep story IDs stable once shared with team/test documentation.
+
 ---
 
 # Epic 1: User Authentication and Security

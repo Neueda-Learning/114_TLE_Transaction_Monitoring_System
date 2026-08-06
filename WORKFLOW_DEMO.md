@@ -31,6 +31,16 @@ Alerts Table Populates
 
 ## ✅ Verified Features
 
+### Demo Evidence Capture Checklist
+
+Use this checklist during walkthrough recordings or manual demo sessions:
+
+- Capture login event with user role visible.
+- Capture alert count change before/after simulator events.
+- Capture one alert detail view with status transition.
+- Capture one role-based visibility difference (admin vs analyst).
+- Capture final dashboard/alerts state after auto-refresh.
+
 ### 1. Real-Time Notification System (WORKING ✓)
 
 **Evidence:**
@@ -242,6 +252,13 @@ public void generateTransaction() {
 ---
 
 ## 🔄 Complete Workflow Scenario
+
+### Demo Assumptions
+
+- Backend and frontend are running on local default ports.
+- Demo uses seeded users and local development credentials.
+- Simulator is active during real-time observation steps.
+- Browser session keeps a valid JWT token while demoing protected routes.
 
 ### Step 1: Monitor Real-Time Activity
 1. User logs in as Admin (username: admin, password: admin123)

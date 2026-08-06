@@ -1,16 +1,41 @@
-# React + Vite
+# Frontend - Transaction Monitoring System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains the React + Vite frontend for the Transaction Monitoring System.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20+ recommended
+- npm 10+
 
-## React Compiler
+## Local Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Install dependencies:
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. Start development server:
+
+```bash
+npm run dev
+```
+
+3. Open the app in your browser:
+
+```text
+http://localhost:5173
+```
+
+## Available Scripts
+
+- `npm run dev` - Start Vite dev server
+- `npm run build` - Create production build
+- `npm run preview` - Preview production build locally
+- `npm run lint` - Run ESLint checks
+- `npm run test` - Run unit tests (Vitest)
+
+## Notes
+
+- Frontend API integration is configured in `src/services/`.
+- Alert stream and authentication state are managed via context providers in `src/context/`.
