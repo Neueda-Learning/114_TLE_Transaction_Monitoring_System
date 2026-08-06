@@ -62,6 +62,8 @@ const getStatusAction = (status) => {
       return 'CLOSE'
     case 'DISMISSED':
       return 'DISMISS'
+    case 'ROLLBACK':
+      return 'ROLLBACK'
     default:
       return 'UPDATE_STATUS'
   }

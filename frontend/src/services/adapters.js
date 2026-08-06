@@ -58,7 +58,7 @@ export const normalizeTransaction = (transaction = {}) => {
     currency: transaction.currency || transaction.Currency || 'USD',
     transactionType: transaction.transactionType || transaction.transaction_type || 'UNKNOWN',
     timestamp,
-    riskStatus: transaction.riskStatus || transaction.status || 'NORMAL',
+    riskStatus: transaction.riskStatus || transaction.fraudStatus || transaction.fraud_status || 'NORMAL',
   }
 }
 

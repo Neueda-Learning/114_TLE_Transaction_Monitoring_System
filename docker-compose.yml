@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: transaction-monitoring-db
+
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: n3u3da!
+      MYSQL_DATABASE: transaction_monitoringdb
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+      - ./database/data.sql:/docker-entrypoint-initdb.d/2-data.sql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pn3u3da!"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+
+    build:
+      context: ./backend
+
+    container_name: transaction-monitoring-backend
+
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+    ports:
+      - "8081:8080"
+
+    environment:
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/transaction_monitoringdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+
+      SPRING_DATASOURCE_USERNAME: root
+
+      SPRING_DATASOURCE_PASSWORD: n3u3da!
+
+  frontend:
+
+    build:
+      context: ./frontend
+
+    container_name: transaction-monitoring-frontend
+
+    depends_on:
+      - backend
+
+    ports:
+      - "5173:80"
+
+volumes:
+
+  mysql_data:
