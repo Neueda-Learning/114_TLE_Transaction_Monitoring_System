@@ -11,6 +11,8 @@ import com.transactionmonitoring.backend.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Comparator;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -185,46 +187,85 @@ public class DataSeeder {
     }
 
     @Bean
-    CommandLineRunner seedAlerts(AlertRepository alertRepository) {
+    CommandLineRunner seedAlerts(
+            AlertRepository alertRepository,
+            TransactionRepository transactionRepository,
+            RulesRepository rulesRepository) {
         return args -> {
-            if (alertRepository.count() == 0) {
-                // Alert 1: HIGH severity, OPEN status
+            List<Transaction> transactions = transactionRepository.findAll();
+            List<Rules> rules = rulesRepository.findAll();
+
+            if (transactions.size() < 4 || rules.size() < 4) {
+                return;
+            }
+
+            transactions.sort(Comparator.comparing(Transaction::getTransactionId));
+            rules.sort(Comparator.comparing(Rules::getRuleId));
+
+            Transaction txn1 = transactions.get(0);
+            Transaction txn2 = transactions.get(1);
+            Transaction txn3 = transactions.get(2);
+            Transaction txn4 = transactions.get(3);
+
+            Rules rule1 = rules.get(0);
+            Rules rule2 = rules.get(1);
+            Rules rule3 = rules.get(2);
+            Rules rule4 = rules.get(3);
+
+            List<Alert> existingAlerts = alertRepository.findAll();
+
+            if (existingAlerts.stream().noneMatch(a ->
+                    txn1.getTransactionId().equals(a.getTransactionId())
+                            && rule1.getRuleId().equals(a.getRuleId())
+                            && "Transaction from high-risk customer - First transaction to new merchant".equals(a.getAlertMessage()))) {
                 Alert alert1 = new Alert();
-                alert1.setTransactionId(1L);
-                alert1.setRuleId(1L);
+                alert1.setTransactionId(txn1.getTransactionId());
+                alert1.setRuleId(rule1.getRuleId());
                 alert1.setAlertType(RULE_TYPE_BEHAVIORAL);
                 alert1.setSeverity("HIGH");
                 alert1.setAlertStatus(STATUS_OPEN);
                 alert1.setAlertMessage("Transaction from high-risk customer - First transaction to new merchant");
                 alert1.setCreatedAt(utcNow().minusMinutes(5));
                 alertRepository.save(alert1);
+            }
 
-                // Alert 2: MEDIUM severity, OPEN status
+            if (existingAlerts.stream().noneMatch(a ->
+                    txn2.getTransactionId().equals(a.getTransactionId())
+                            && rule2.getRuleId().equals(a.getRuleId())
+                            && "Transaction exceeds daily limit - Amount $25,000 > Threshold $20,000".equals(a.getAlertMessage()))) {
                 Alert alert2 = new Alert();
-                alert2.setTransactionId(2L);
-                alert2.setRuleId(2L);
+                alert2.setTransactionId(txn2.getTransactionId());
+                alert2.setRuleId(rule2.getRuleId());
                 alert2.setAlertType("AMOUNT_THRESHOLD");
                 alert2.setSeverity("MEDIUM");
                 alert2.setAlertStatus(STATUS_OPEN);
                 alert2.setAlertMessage("Transaction exceeds daily limit - Amount $25,000 > Threshold $20,000");
                 alert2.setCreatedAt(utcNow().minusMinutes(3));
                 alertRepository.save(alert2);
+            }
 
-                // Alert 3: HIGH severity, INVESTIGATING status
+            if (existingAlerts.stream().noneMatch(a ->
+                    txn3.getTransactionId().equals(a.getTransactionId())
+                            && rule3.getRuleId().equals(a.getRuleId())
+                            && "High-risk crypto exchange transaction detected - $50,000 to crypto service".equals(a.getAlertMessage()))) {
                 Alert alert3 = new Alert();
-                alert3.setTransactionId(3L);
-                alert3.setRuleId(3L);
+                alert3.setTransactionId(txn3.getTransactionId());
+                alert3.setRuleId(rule3.getRuleId());
                 alert3.setAlertType(RULE_TYPE_BEHAVIORAL);
                 alert3.setSeverity("HIGH");
                 alert3.setAlertStatus("INVESTIGATING");
                 alert3.setAlertMessage("High-risk crypto exchange transaction detected - $50,000 to crypto service");
                 alert3.setCreatedAt(utcNow().minusMinutes(2));
                 alertRepository.save(alert3);
+            }
 
-                // Alert 4: LOW severity, ACKNOWLEDGED status
+            if (existingAlerts.stream().noneMatch(a ->
+                    txn4.getTransactionId().equals(a.getTransactionId())
+                            && rule4.getRuleId().equals(a.getRuleId())
+                            && "Routine low-value transaction - $150 purchase at local retail store".equals(a.getAlertMessage()))) {
                 Alert alert4 = new Alert();
-                alert4.setTransactionId(4L);
-                alert4.setRuleId(4L);
+                alert4.setTransactionId(txn4.getTransactionId());
+                alert4.setRuleId(rule4.getRuleId());
                 alert4.setAlertType("ROUTINE");
                 alert4.setSeverity("LOW");
                 alert4.setAlertStatus(STATUS_ACKNOWLEDGED);
