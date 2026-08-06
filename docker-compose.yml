@@ -35,7 +35,7 @@ services:
 
     environment:
 
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/transaction_monitoringdb?useSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/transaction_monitoringdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
 
       SPRING_DATASOURCE_USERNAME: root
 
