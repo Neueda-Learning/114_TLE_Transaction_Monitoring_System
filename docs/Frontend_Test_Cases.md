@@ -50,6 +50,22 @@ ________________
 Pass / Fail
 
 
+---
+
+# 9. Test Execution Notes Template
+
+Use this short template while executing any FTC case:
+
+- Date:
+- Tester Name:
+- Build/Branch:
+- Browser/Device:
+- Test Case ID:
+- Result (Pass/Fail):
+- Observation Summary:
+- Follow-up Action (if any):
+
+
 
 ---
 
