@@ -73,6 +73,10 @@ public class RulesService {
 
     public List<String> checkRules(Transaction transaction){
         List<String> violations = new ArrayList<>();
+        if("REFUND".equalsIgnoreCase(transaction.getTransactionType())
+                || "REFUNDED".equalsIgnoreCase(transaction.getTransactionType())){
+            return violations;
+        }
         checkAmountThreshold(transaction,violations);
         checkVelocity(transaction,violations);
         checkNewPayee(transaction,violations);
@@ -128,6 +132,9 @@ public class RulesService {
         List<Transaction> transactions = transactionRepository.findByAccountIdAndTransactionDateAfter(transaction.getAccountId(), LocalDate.now(ZoneOffset.UTC).atStartOfDay());
         BigDecimal total = BigDecimal.ZERO;
         for(Transaction t:transactions){
+            if("ROLLED_BACK".equals(t.getInvestigationStatus())){
+                continue;
+            }
             total = total.add(t.getAmount());
         }
         BigDecimal threshold = new BigDecimal(dailyRule.getThresholdValue());
