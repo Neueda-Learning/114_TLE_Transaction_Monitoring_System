@@ -20,6 +20,12 @@ services:
       - ./database/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
       - ./database/data.sql:/docker-entrypoint-initdb.d/2-data.sql
 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pn3u3da!"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   backend:
 
     build:
@@ -28,7 +34,8 @@ services:
     container_name: transaction-monitoring-backend
 
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
     ports:
       - "8081:8080"
