@@ -109,6 +109,15 @@ export const getAlertById = async (alertId) => {
   }
 }
 
+export const getAlertLogs = async (alertId) => {
+  try {
+    const response = await apiClient.get(`/alerts/${alertId}/logs`)
+    return Array.isArray(response.data) ? response.data : []
+  } catch (error) {
+    throw new Error('Unable to load alert activity history.', { cause: error })
+  }
+}
+
 export const getRules = async () => {
   try {
     const response = await apiClient.get('/rules')
@@ -118,14 +127,15 @@ export const getRules = async () => {
   }
 }
 
-export const updateAlertStatus = async (alertId, status) => {
+export const updateAlertStatus = async (alertId, status, note = '') => {
   try {
+    const trimmedNote = note.trim()
     await apiClient.patch(`/alerts/${alertId}/status`, {
       status,
       action: getStatusAction(status),
-      description: `Status changed to ${status}`,
+      description: trimmedNote || `Status changed to ${status}`,
     })
-    return { alertId, status }
+    return { alertId, status, note: trimmedNote }
   } catch (error) {
     throw new Error('Unable to update alert status.', { cause: error })
   }

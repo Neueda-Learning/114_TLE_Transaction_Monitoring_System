@@ -51,8 +51,9 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/login",
                                 "/api/auth/forgot-password",
-                            "/api/auth/reset-password",
-                            "/error"
+                                "/api/auth/reset-password",
+                                "/api/alerts/stream",
+                                "/error"
                         ).permitAll()
                         .requestMatchers(
                             "/transactions", "/transactions/**",
