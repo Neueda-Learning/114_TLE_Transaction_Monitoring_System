@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.transactionmonitoring.backend.entity.Transaction;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import com.transactionmonitoring.backend.service.RulesService;
 import com.transactionmonitoring.backend.service.AlertService;
@@ -81,6 +83,31 @@ public class TransactionService {
         transaction.setInvestigationStatus("ROLLED_BACK");
         transactionRepository.save(transaction);
 
+        String refundAccountId = transaction.getPayeeId();
+        if (refundAccountId == null || refundAccountId.isBlank()) {
+            // Protect against DB NOT NULL constraint when original payee id is absent.
+            refundAccountId = transaction.getAccountId();
+            log.warn("Rollback id={} has null/blank payeeId. Using accountId={} for refund account.", transactionId, refundAccountId);
+        }
+
+        String refundPayeeId = transaction.getAccountId();
+        if (refundPayeeId == null || refundPayeeId.isBlank()) {
+            throw new IllegalStateException("Rollback failed: accountId is missing on original transaction");
+        }
+
+        Transaction refund = new Transaction();
+        refund.setAccountId(refundAccountId);
+        refund.setPayeeId(refundPayeeId);
+        refund.setPayeeName("ORIGINAL ACCOUNT HOLDER");
+        refund.setTransactionType("REFUND");
+        refund.setAmount(transaction.getAmount());
+        refund.setInvestigationStatus("REFUNDED");
+        refund.setFraudStatus("NORMAL");
+        refund.setStatus("SUCCESS");
+        refund.setTransactionDate(LocalDateTime.now());
+        refund.setCurrency(transaction.getCurrency());
+        Transaction savedRefund = transactionRepository.save(refund);
+        log.info("Rollback id={} created refund transaction id={}", transactionId, savedRefund.getTransactionId());
         for (Alert alert : investigatingAlerts) {
             String oldStatus = alert.getAlertStatus();
             alert.setAlertStatus("ROLLED_BACK");

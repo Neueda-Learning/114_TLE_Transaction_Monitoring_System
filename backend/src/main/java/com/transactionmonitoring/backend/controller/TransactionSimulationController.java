@@ -82,6 +82,26 @@ public class TransactionSimulationController {
     }
 
     /**
+     * POST /api/simulator/generate/coverage/{count}
+     * Generates deterministic scenario data to exercise major fraud workflows.
+     */
+    @PostMapping("/generate/coverage/{count}")
+    public ResponseEntity<Map<String, Object>> generateCoverage(@PathVariable int count) {
+        if (count <= 0) {
+            log.warn("POST /api/simulator/generate/coverage/{} — invalid count", count);
+            return ResponseEntity.badRequest()
+                    .body(Map.of(MESSAGE_KEY, "count must be greater than zero"));
+        }
+        log.info("POST /api/simulator/generate/coverage/{} — generating coverage batch", count);
+        var saved = transactionSimulationService.generateCoverageBatch(count);
+        log.info("POST /api/simulator/generate/coverage/{} — saved {} transactions", count, saved.size());
+        return ResponseEntity.ok(Map.of(
+                MESSAGE_KEY, "Coverage batch generated successfully",
+                "generated", saved.size()
+        ));
+    }
+
+    /**
      * GET /api/simulator/status
      * Returns whether the continuous simulation is currently active.
      */

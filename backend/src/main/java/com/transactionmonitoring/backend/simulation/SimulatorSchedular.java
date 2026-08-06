@@ -3,6 +3,7 @@ package com.transactionmonitoring.backend.simulation;
 import com.transactionmonitoring.backend.service.TransactionSimulationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.Executors;
@@ -17,9 +18,9 @@ public class SimulatorSchedular {
     private static final Logger log = LoggerFactory.getLogger(SimulatorSchedular.class);
 
     private static final long INITIAL_DELAY_SECONDS = 0L;
-    private static final long PERIOD_SECONDS        = 5L;
 
     private final TransactionSimulationService transactionSimulationService;
+    private final long periodSeconds;
 
     private final ScheduledExecutorService scheduler =
             Executors.newSingleThreadScheduledExecutor(r -> {
@@ -31,12 +32,15 @@ public class SimulatorSchedular {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private ScheduledFuture<?> scheduledFuture;
 
-    public SimulatorSchedular(TransactionSimulationService transactionSimulationService) {
+    public SimulatorSchedular(
+            TransactionSimulationService transactionSimulationService,
+            @Value("${app.simulator.period-seconds:5}") long periodSeconds) {
         this.transactionSimulationService = transactionSimulationService;
+        this.periodSeconds = Math.max(1L, periodSeconds);
     }
 
     /**
-     * Starts the simulation. Generates one transaction every {@value #PERIOD_SECONDS} seconds.
+    * Starts the simulation. Generates one transaction at configured interval.
      * A no-op if the simulation is already running.
      */
     public synchronized void startSimulation() {
@@ -48,12 +52,12 @@ public class SimulatorSchedular {
         scheduledFuture = scheduler.scheduleAtFixedRate(
                 this::generateTransaction,
                 INITIAL_DELAY_SECONDS,
-                PERIOD_SECONDS,
+                periodSeconds,
                 TimeUnit.SECONDS
         );
 
         running.set(true);
-        log.info("Transaction simulation started (period={}s)", PERIOD_SECONDS);
+            log.info("Transaction simulation started (period={}s)", periodSeconds);
     }
 
     /**
