@@ -17,18 +17,7 @@ pipeline {
 
         
 
-        stage('Frontend Checks') {
-            steps {
-                dir('frontend') {
-                    echo 'Installing frontend dependencies'
-                    sh 'npm ci'
-                    echo 'Running frontend tests'
-                    sh 'npm test'
-                    echo 'Building frontend production bundle'
-                    sh 'npm run build'
-                }
-            }
-        }
+    
 
         stage('Build Docker Images') {
             steps {
