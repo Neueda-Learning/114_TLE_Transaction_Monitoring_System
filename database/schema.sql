@@ -89,3 +89,15 @@ Insert into rules(rule_name,rule_type,threshold_value,is_active) values('Daily L
 insert into rules(rule_name,rule_type,threshold_value,is_active) values('New Payee Rule','NEW_PAYEE',NULL,True);
 alter table transactions add column investigation_status varchar(20) default 'SUCCESS';
 ALTER TABLE transactions ADD COLUMN fraud_status VARCHAR(20) DEFAULT 'NORMAL';
+INSERT INTO rules (
+    rule_type,
+    rule_name,
+    threshold_value,
+    is_active
+)
+VALUES (
+    'FRAUD_THRESHOLD',
+    'Fraud Threshold',
+    '70',
+    true
+);
