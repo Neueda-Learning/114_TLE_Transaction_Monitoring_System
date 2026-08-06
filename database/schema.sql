@@ -71,17 +71,6 @@ CREATE TABLE logs (
 );
 
 
--- 5. Users Table
-CREATE TABLE users (
-    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    employee_id VARCHAR(50) NOT NULL UNIQUE,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL,
-    full_name VARCHAR(100),
-    email VARCHAR(150),
-    role VARCHAR(50)
-);
-
 --inserting amount threshold rule
 insert into rules(rule_name,rule_type,field_name,operator,threshold_value,is_active) Values ('Amount Threshold','AMOUNT_THRESHOLD','amount','>','20000',true);
 INSERT INTO rules(rule_name,rule_type,threshold_value,time_window_minutes,is_active) Values ('Velocity Rule', 'VELOCITY','5',10,true);
