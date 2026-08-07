@@ -18,8 +18,7 @@ const appendTimelineEvent = (action, timeline = []) => {
 
 const TRANSACTION_POLL_INTERVAL_MS = 5000
 
-const resolveAlertStreamBaseUrl = () =>
-  import.meta.env.VITE_API_BASE_URL || `${window.location.protocol}//${window.location.hostname}:8080`
+const resolveAlertStreamBaseUrl = () => ''
 
 export function AppDataProvider({ children }) {
   const { isAuthenticated, token } = useAuth()
@@ -124,7 +123,7 @@ export function AppDataProvider({ children }) {
       return undefined
     }
 
-    const streamUrl = `${resolveAlertStreamBaseUrl()}/api/alerts/stream?token=${encodeURIComponent(token)}`
+    const streamUrl = `/api/alerts/stream?token=${encodeURIComponent(token)}`
     const eventSource = new EventSource(streamUrl)
 
     const handleAlertCreated = (event) => {
