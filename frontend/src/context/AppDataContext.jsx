@@ -129,11 +129,20 @@ export function AppDataProvider({ children }) {
 
     const handleAlertCreated = (event) => {
       try {
-        const payload = JSON.parse(event.data)
-        pushAlertNotification(payload)
-        loadData()
-      } catch {
-        // Ignore malformed event payloads and keep the stream alive.
+        console.log("🚨 SSE EVENT RECEIVED");
+        console.log(event.data);
+
+        const payload = JSON.parse(event.data);
+
+        console.log("Parsed Alert:", payload);
+
+        pushAlertNotification(payload);
+
+        console.log("Calling loadData()...");
+
+        loadData();
+      } catch (error) {
+        console.error("SSE ERROR:", error);
       }
     }
 
